@@ -119,7 +119,6 @@ module Cyclid
             unless do_config.key? :access_token
 
           # Set defaults
-          # do_config[:] = '' unless do_config.key? :
           do_config[:region] = 'nyc1' unless do_config.key? :region
           do_config[:size] = '512mb' unless do_config.key? :size
           do_config[:ssh_private_key] = File.join(%w(/ etc cyclid id_rsa_build)) \
