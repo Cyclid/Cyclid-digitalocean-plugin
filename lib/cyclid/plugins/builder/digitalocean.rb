@@ -54,9 +54,11 @@ module Cyclid
             release = 'trusty'
           end
 
-          release_version = case release
-                            when 'trusty'
-                              '14-04'
+          # Convert Debian & Ubuntu release codenames
+          release_version = if distro == 'ubuntu' or distro == 'debian'
+                              codename_to_version(release)
+                            else
+                              release
                             end
 
           begin
@@ -132,6 +134,24 @@ module Cyclid
             unless do_config.key? :instance_name
 
           return do_config
+        end
+
+        # Convert Ubuntu & Debian release codenames to Digitialocean approved release versions
+        def codename_to_version(release)
+          versions = {'precise' => '12-04',
+                      'trusty' => '14-04',
+                      'xenial' => '16-04',
+                      'yakkety' => '16-10',
+                      'wheezy' => '7',
+                      'jessie' => '8'}
+
+          # No need to convert if it isn't a codename
+          return release if release =~ /\A\d*[-\d*]/
+
+          raise "don't know what version Ubuntu/Debian #{release} is" \
+            unless versions.key? release
+
+          return versions[release]
         end
 
         def build_ssh_key
