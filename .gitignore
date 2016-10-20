@@ -8,3 +8,5 @@ pkg
 
 # OS artifacts
 .DS_Store
+
+coverage
