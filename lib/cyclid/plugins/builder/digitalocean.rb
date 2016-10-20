@@ -88,12 +88,8 @@ module Cyclid
             raise "digitalocean failed: #{ex}"
           end
 
-          # XXX hax; the SSH transport seems to cope poorly; make the SSH
-          # transport more resiliant to SSH connection errors
-          sleep 30
-
           Cyclid.logger.debug "digitalocean buildhost=#{buildhost.inspect}"
-          buildhost
+          return buildhost
         end
 
         # Destroy the build host
@@ -162,11 +158,11 @@ module Cyclid
         def wait_for_droplet(created)
           # Wait for the droplet to become active; wait a maximum of 1 minute,
           # polling every 2 seconds.
+          Cyclid.logger.debug "Waiting for instance #{created.id.to_s} to become 'active'..."
           for timeout in 0..29
             created = @client.droplets.find(id: created.id.to_s)
             break if created.status == 'active'
 
-            Cyclid.logger.debug "Waiting for instance #{created.id.to_s} to become 'active'..."
             sleep 2
           end
           Cyclid.logger.debug "created=#{created.inspect}"
