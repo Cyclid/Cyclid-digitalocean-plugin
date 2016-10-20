@@ -60,22 +60,8 @@ module Cyclid
                             end
 
           begin
-            # Find the build key, if it exists
-            build_key = nil
-            all_keys = @client.ssh_keys.all
-            all_keys.each do |key|
-              build_key = key if key.name == @config[:ssh_key_name]
-            end
-            Cyclid.logger.debug "build_key=#{build_key.inspect}"
-
-            # If the key doesn't exist, create it
-            if build_key.nil?
-              pubkey = File.read(@config[:ssh_public_key])
-              key = DropletKit::SSHKey.new(name: @config[:ssh_key_name],
-                                           public_key: pubkey)
-              build_key = @client.ssh_keys.create(key)
-              Cyclid.logger.debug "build_key=#{build_key.inspect}"
-            end
+            # Find, or create, the SSH key Cyclid can use
+            build_key = build_ssh_key
 
             # Create the Droplet
             droplet = DropletKit::Droplet.new(name: create_name,
@@ -85,24 +71,10 @@ module Cyclid
                                               ssh_keys: [build_key.id])
             created = @client.droplets.create droplet
 
-            # Wait for it to become active; wait a maximum of 1 minute, polling
-            # every 2 seconds.
-            for timeout in 0..29
-              created = @client.droplets.find(id: created.id.to_s)
-              break if created.status == 'active'
+            # Wait for the droplet to become 'active'
+            created = wait_for_droplet(created)
 
-              Cyclid.logger.debug "Waiting for instance #{created.id.to_s} to become 'active'..."
-              sleep 2
-            end
-            Cyclid.logger.debug "created=#{created.inspect}"
-
-            unless created.status == 'active'
-              @client.droplets.delete(id: created.id)
-
-              raise 'failed to create build host: did not become active within 1 minute. ' \
-                    "Status is #{created.status}" \
-            end
-
+            # Create a buildhost from the active Droplet details
             buildhost = DigitaloceanHost.new(name: created.name,
                                              host: created.networks.v4.first.ip_address,
                                              id: created.id,
@@ -164,6 +136,49 @@ module Cyclid
             unless do_config.key? :instance_name
 
           return do_config
+        end
+
+        def build_ssh_key
+          # Find the build key, if it exists
+          build_key = nil
+          all_keys = @client.ssh_keys.all
+          all_keys.each do |key|
+            build_key = key if key.name == @config[:ssh_key_name]
+          end
+          Cyclid.logger.debug "build_key=#{build_key.inspect}"
+
+          # If the key doesn't exist, create it
+          if build_key.nil?
+            pubkey = File.read(@config[:ssh_public_key])
+            key = DropletKit::SSHKey.new(name: @config[:ssh_key_name],
+                                         public_key: pubkey)
+            build_key = @client.ssh_keys.create(key)
+            Cyclid.logger.debug "build_key=#{build_key.inspect}"
+          end
+
+          return build_key
+        end
+
+        def wait_for_droplet(created)
+          # Wait for the droplet to become active; wait a maximum of 1 minute,
+          # polling every 2 seconds.
+          for timeout in 0..29
+            created = @client.droplets.find(id: created.id.to_s)
+            break if created.status == 'active'
+
+            Cyclid.logger.debug "Waiting for instance #{created.id.to_s} to become 'active'..."
+            sleep 2
+          end
+          Cyclid.logger.debug "created=#{created.inspect}"
+
+          unless created.status == 'active'
+            @client.droplets.delete(id: created.id)
+
+            raise 'failed to create build host: did not become active within 1 minute. ' \
+                  "Status is #{created.status}" \
+          end
+
+          return created
         end
 
         def create_name
