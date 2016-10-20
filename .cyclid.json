@@ -12,13 +12,21 @@
           "ruby2.3",
           "ruby2.3-dev",
           "build-essential",
-          "git"
+          "git",
+          "zlib1g-dev",
+          "libsqlite3-dev",
+          "mysql-client",
+          "libmysqlclient-dev"
         ]
       },
    "sources": [
       {
         "type": "git",
         "url": "https://github.com/Cyclid/Cyclid-digitalocean-plugin"
+      },
+      {
+        "type": "git",
+        "url": "https://github.com/Cyclid/Cyclid"
       }
    ],
    "stages" : [
