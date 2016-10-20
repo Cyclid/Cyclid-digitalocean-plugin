@@ -96,11 +96,9 @@ module Cyclid
 
         # Destroy the build host
         def release(_transport, buildhost)
-          begin
-            @client.droplets.delete(id: buildhost[:id])
-          rescue StandardError => ex
-            Cyclid.logger.error "Digitalcoean destroy timed out: #{ex}"
-          end
+          @client.droplets.delete(id: buildhost[:id])
+        rescue StandardError => ex
+          Cyclid.logger.error "Digitalcoean destroy timed out: #{ex}"
         end
 
         # Register this plugin
@@ -121,7 +119,7 @@ module Cyclid
             unless do_config.key? :access_token
 
           # Set defaults
-          #do_config[:] = '' unless do_config.key? :
+          # do_config[:] = '' unless do_config.key? :
           do_config[:region] = 'nyc1' unless do_config.key? :region
           do_config[:size] = '512mb' unless do_config.key? :size
           do_config[:ssh_private_key] = File.join(%w(/ etc cyclid id_rsa_build)) \
@@ -138,12 +136,12 @@ module Cyclid
 
         # Convert Ubuntu & Debian release codenames to Digitialocean approved release versions
         def codename_to_version(release)
-          versions = {'precise' => '12-04',
-                      'trusty' => '14-04',
-                      'xenial' => '16-04',
-                      'yakkety' => '16-10',
-                      'wheezy' => '7',
-                      'jessie' => '8'}
+          versions = { 'precise' => '12-04',
+                       'trusty' => '14-04',
+                       'xenial' => '16-04',
+                       'yakkety' => '16-10',
+                       'wheezy' => '7',
+                       'jessie' => '8' }
 
           # No need to convert if it isn't a codename
           return release if release =~ /\A\d*[-\d*]/
@@ -178,8 +176,8 @@ module Cyclid
         def wait_for_droplet(created)
           # Wait for the droplet to become active; wait a maximum of 1 minute,
           # polling every 2 seconds.
-          Cyclid.logger.debug "Waiting for instance #{created.id.to_s} to become 'active'..."
-          for timeout in 0..29
+          Cyclid.logger.debug "Waiting for instance #{created.id} to become 'active'..."
+          29.times do
             created = @client.droplets.find(id: created.id.to_s)
             break if created.status == 'active'
 
