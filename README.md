@@ -35,7 +35,7 @@ The Digitalocean plugin will attempt to find, and create if required, a dedicate
 
 By default the keypair `/etc/cyclid/id_rsa_build` (private) and `/etc/cyclid/id_rsa_build.pub` (public) will be used. You can set paths to a different keypair using the _ssh\_private\_key_ and _ssh\_public\_key_ options.
 
-The private key is only used if Cyclid can not find a key that matches _ssh\_key\_name_: if you wish, you can add the private key to your Digitalocean account yourself, and not provide for use by Cyclid.
+The private key is only used if Cyclid can not find a key that matches _ssh\_key\_name_: if you wish, you can add the private key to your Digitalocean account yourself, and not provide it for use by Cyclid.
 
 # Usage
 
@@ -45,7 +45,7 @@ Install & configure the plugin as above, and configure Cyclid to use the plugin 
 
 Create `1gb` sized instances in the SFO2 region:
 
-```json
+```yaml
 server:
   ...
   builder: digitalocean
