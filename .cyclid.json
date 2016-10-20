@@ -1,0 +1,113 @@
+{
+   "name" : "Cyclid-digitalocean-plugin",
+   "environment":
+      {
+        "os": "ubuntu_trusty",
+        "repos": [
+          {
+            "url": "ppa:brightbox/ruby-ng"
+          }
+        ],
+        "packages": [
+          "ruby2.3",
+          "ruby2.3-dev",
+          "build-essential",
+          "git"
+        ]
+      },
+   "sources": [
+      {
+        "type": "git",
+        "url": "https://github.com/Cyclid/Cyclid-digitalocean-plugin"
+      }
+   ],
+   "stages" : [
+      {
+        "name" : "bundle-install",
+        "steps" : [
+          {
+            "action" : "command", 
+            "cmd" : "sudo gem install bundler --no-ri --no-doc"
+          },
+          {
+            "action" : "command",
+            "cmd": "bundle install --path vendor/bundle",
+            "path" : "%{workspace}/Cyclid-digitalocean-plugin"
+          }
+        ]
+      },
+      {
+        "name" : "lint",
+        "steps" : [
+          {
+            "action" : "command",
+            "cmd" : "bundle exec rake rubocop",
+            "path" : "%{workspace}/Cyclid-digitalocean-plugin"
+          }
+        ]
+      },
+      {
+        "name": "rspec",
+        "steps": [
+          {
+            "action" : "command",
+            "cmd" : "bundle exec rake spec",
+            "path" : "%{workspace}/Cyclid-digitalocean-plugin"
+          }
+        ]
+      },
+      {
+        "name": "build",
+        "steps": [
+          {
+            "action" : "command",
+            "cmd" : "bundle exec rake build",
+            "path" : "%{workspace}/Cyclid-digitalocean-plugin"
+          }
+        ]
+      },
+      {
+        "name": "success",
+        "steps": [
+          {
+            "action" : "slack",
+            "subject" : "%{job_name} succeeded",
+            "message" : "Build %{organization}/%{job_name} (job #%{job_id}) completed successfully."
+          }
+        ]
+      },
+      {
+        "name": "failure",
+        "steps": [
+          {
+            "action" : "slack",
+            "subject" : "%{job_name} failed",
+            "message" : "Build %{organization}/%{job_name} (job #%{job_id}) failed.",
+            "color" : "danger"
+          }
+        ]
+      }
+   ],
+   "sequence" : [
+      {
+         "stage" : "bundle-install",
+         "on_success" : "lint",
+         "on_failure" : "failure"
+      },
+      {
+        "stage" : "lint",
+        "on_success" : "rspec",
+        "on_failure" : "failure"
+      },
+      {
+        "stage" : "rspec",
+        "on_success" : "build",
+        "on_failure" : "failure"
+      },
+      {
+        "stage" : "build",
+        "on_success" : "success",
+        "on_failure" : "failure"
+      }
+   ]
+}
