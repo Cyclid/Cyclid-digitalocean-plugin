@@ -1,0 +1,8 @@
+server:
+  database: sqlite3:development.db
+  log: stderr
+  dispatcher: local
+  builder: digitalocean
+  plugins:
+    digitalocean:
+      access_token: sekrit 
