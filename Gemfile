@@ -7,4 +7,6 @@ group :development, :test do
   gem 'rake'
   gem 'rubocop'
   gem 'rubygems-tasks'
+  gem 'rspec'
+  gem 'simplecov'
 end
