@@ -48,15 +48,15 @@ class FakeDroplet
 end
 
 class FakeDropletResource
-  def create(*args)
+  def create(*_args)
     FakeDroplet.new
   end
 
-  def find(*args)
+  def find(*_args)
     FakeDroplet.new
   end
 
-  def delete(*args)
+  def delete(*_args)
     true
   end
 end
@@ -118,7 +118,7 @@ describe Cyclid::API::Plugins::Digitalocean do
 
   context 'destroying a build host' do
     it 'destroys the instance' do
-      expect{ subject.release(nil, {id: 'abcdef'}) }.to_not raise_error
+      expect{ subject.release(nil, id: 'abcdef') }.to_not raise_error
     end
   end
 end
