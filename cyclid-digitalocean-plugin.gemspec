@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 Gem::Specification.new do |s|
   s.name        = 'cyclid-digitalocean-plugin'
-  s.version     = '0.1.0'
+  s.version     = '0.1.1'
   s.licenses    = ['Apache-2.0']
   s.summary     = 'Cyclid Digitalocean plugin'
   s.description = 'Creates Digitalocean Droplet build hosts'

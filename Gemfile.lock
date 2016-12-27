@@ -30,7 +30,7 @@ PATH
 PATH
   remote: .
   specs:
-    cyclid-digitalocean-plugin (0.1.0)
+    cyclid-digitalocean-plugin (0.1.1)
       droplet_kit (~> 1.4)
 
 GEM
