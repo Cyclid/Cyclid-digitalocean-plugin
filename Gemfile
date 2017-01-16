@@ -12,4 +12,5 @@ group :development, :test do
   gem 'simplecov'
 
   gem 'cyclid', path: '../Cyclid/'
+  gem 'sqlite3'
 end
